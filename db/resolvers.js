@@ -37,6 +37,37 @@ const resolvers = {
       }
       return producto;
     },
+    obtenerClientes: async () => {
+      try {
+        const clientes = await Cliente.find({});
+        return clientes;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    obtenerClientesVendedor: async (_, {}, ctx) => {
+      try {
+        const clientes = await Cliente.find({
+          vendedor: ctx.usuario.id.toString(),
+        });
+        return clientes;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    obtenerCliente: async (_, { id }, ctx) => {
+      // Revisar si el cliente existe
+      const cliente = await Cliente.findById(id);
+      if (!cliente) {
+        throw new Error("Cliente no encontrado");
+      }
+      // Quien lo creó puede verlo
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        throw new Error("Credenciales inválidas");
+      }
+
+      return cliente;
+    },
   },
 
   Mutation: {
@@ -143,6 +174,36 @@ const resolvers = {
       } catch (error) {
         console.log(error);
       }
+    },
+    actualizarCliente: async (_, { id, input }, ctx) => {
+      // Verificar si existe
+      let cliente = await Cliente.findById(id);
+      if (!cliente) {
+        throw new Error("El cliente no existe");
+      }
+      // Verificar si es su vendedor quien edita
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        throw new Error("Credenciales inválidas");
+      }
+      // guardarlo en la base
+      cliente = await Cliente.findOneAndUpdate({ _id: id }, input, {
+        new: true,
+      });
+      return cliente;
+    },
+    eliminarCliente: async (_, { id }, ctx) => {
+      // Verificar si existe
+      let cliente = await Cliente.findById(id);
+      if (!cliente) {
+        throw new Error("El cliente no existe");
+      }
+      // Verificar si es su vendedor quien edita
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        throw new Error("Credenciales inválidas");
+      }
+      // Eliminar cliente
+      await Cliente.findOneAndDelete({ _id: id });
+      return "Cliente eliminado";
     },
   },
 };
