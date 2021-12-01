@@ -66,7 +66,6 @@ const resolvers = {
       if (cliente.vendedor.toString() !== ctx.usuario.id) {
         throw new Error("Credenciales inválidas");
       }
-
       return cliente;
     },
     obtenerPedidos: async () => {
@@ -79,7 +78,9 @@ const resolvers = {
     },
     obtenerPedidosVendedor: async (_, {}, ctx) => {
       try {
-        const pedidos = await Pedido.find({ vendedor: ctx.usuario.id });
+        const pedidos = await Pedido.find({
+          vendedor: ctx.usuario.id,
+        }).populate("cliente");
         return pedidos;
       } catch (error) {
         console.log(error);
@@ -381,7 +382,7 @@ const resolvers = {
       }
 
       // guardarlo el pedido
-      const resultado = await Pedido.findByIdAndUpdate({ _id: id }, input, {
+      const resultado = await Pedido.findOneAndUpdate({ _id: id }, input, {
         new: true,
       });
       return resultado;
