@@ -5,9 +5,9 @@ const conectarDB = async () => {
   try {
     await mongoose.connect(process.env.DB_MONGO, {
       //   useNewUrlParser: true, // deprecado
-      //   useUnifiedTopology: true,
-      //   useFindAndModify: false,
-      //   useCreateIndex: true,
+      useUnifiedTopology: true,
+      // useFindAndModify: false,
+      // useCreateIndex: true,
     });
     console.log("DB conectada");
   } catch (error) {
