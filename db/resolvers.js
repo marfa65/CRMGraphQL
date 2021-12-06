@@ -24,6 +24,7 @@ const resolvers = {
     obtenerProductos: async () => {
       try {
         const productos = await Producto.find({});
+        productos.sort((a, b) => (a.nombre > b.nombre ? 1 : -1));
         return productos;
       } catch (error) {
         console.log(error);
